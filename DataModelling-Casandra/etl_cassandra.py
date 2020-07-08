@@ -1,8 +1,5 @@
-# Import Python packages 
-import pandas as pd
 import os
 import glob
-import numpy as np
 import json
 import csv
 
@@ -40,17 +37,17 @@ def csvToCasandra():
 	from cassandra.cluster import Cluster
 	try:
 		cluster = Cluster(['127.0.0.1'])
-	# To establish connection and begin executing queries, need a session
 		session = cluster.connect()
-		session.execute("""DROP TABLE app_history""")
-		session.execute("""DROP TABLE user_songs""")
-		session.execute("""DROP TABLE session_songs""")
+		
 	except Exception as e:
 		print(e)
 
 	session.execute("""CREATE KEYSPACE IF NOT EXISTS sparkify
 	WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 }""")
 	session.set_keyspace('sparkify')
+	session.execute("""DROP TABLE app_history""")
+	session.execute("""DROP TABLE user_songs""")
+	session.execute("""DROP TABLE session_songs""")
 	session.execute("""CREATE TABLE IF NOT EXISTS session_songs(sessionId int, itemInSession int, artist text, song_title text, song_length float,PRIMARY KEY(sessionId, itemInSession))""")
 
 	file = 'event_datafile_new.csv'
@@ -106,5 +103,3 @@ if __name__=="__main__":
 	file_path_list = file_path(filepath='event_data')
 	readWriteCsv(file_path_list)
 	csvToCasandra()
-
-
